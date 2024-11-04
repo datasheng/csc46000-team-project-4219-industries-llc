@@ -1,3 +1,4 @@
 tensorflow
 transformers
 tf_keras
+tiktoken
