@@ -1,4 +1,2 @@
-tensorflow
+torch
 transformers
-tf_keras
-tiktoken

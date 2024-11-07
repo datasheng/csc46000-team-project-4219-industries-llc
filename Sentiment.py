@@ -1,28 +1,26 @@
 class Sentiment:
     def __init__(self) -> None:
         """
-        inits hugginface sentiment model
+        Initializes the Hugging Face sentiment model
         """
+        from transformers import pipeline, logging
+
+        logging.set_verbosity_error()
+
         from transformers import pipeline
+        self.pipeline = pipeline("sentiment-analysis")
 
-        model_path = "cardiffnlp/twitter-xlm-roberta-base-sentiment"
-        self.sentiment_task = pipeline(
-            "sentiment-analysis", model=model_path, tokenizer=model_path
-        )
-
-        pass
-
-    def get_sentiment(self, sentence: str) -> int:
+    def get_sentiment(self, sentence: str) -> dict:
         """
-        given a string, returns an integer on the range of 1-10
-        with 1 being extremely negative
-        10 being extremely positive
+        Given a string, returns a dictionary with 'label' and 'score'
+        representing sentiment polarity and confidence
         """
-        res = self.sentiment_task("i fucking hate you, but i love you")
-        print(res)
-        pass
+        res = self.pipeline(sentence)
+        return res
 
 
 if __name__ == "__main__":
     s = Sentiment()
-    s.get_sentiment()
+    res = s.get_sentiment("eat a bag of dicks")
+
+    print(res)

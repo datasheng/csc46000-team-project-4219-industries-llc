@@ -1,10 +1,10 @@
-FROM python:3.9.10-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
 COPY req.txt .
 
-RUN pip install --no-cache-dir -r req.txt
+RUN pip3 install --no-cache-dir -r req.txt
 
 COPY . .
 
