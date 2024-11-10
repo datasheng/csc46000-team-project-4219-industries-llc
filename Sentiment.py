@@ -7,16 +7,22 @@ class Sentiment:
 
         logging.set_verbosity_error()
 
-        from transformers import pipeline
         self.pipeline = pipeline("sentiment-analysis")
 
-    def get_sentiment(self, sentence: str) -> dict:
+    def get_sentiment(self, sentence: list[str]) -> dict:
         """
-        Given a string, returns a dictionary with 'label' and 'score'
-        representing sentiment polarity and confidence
+        Given strings, returns an array of sentiment scores from -1 to 1
         """
-        res = self.pipeline(sentence)
-        return res
+        sentiments = []
+
+        results = self.pipeline(sentence)
+
+        for result in results:
+            label, score = result.values()
+            score = -1 * score if label == "NEGATIVE" else score
+            sentiments.append(score)
+        
+        return sentiments
 
 
 if __name__ == "__main__":
