@@ -9,7 +9,7 @@ for testing i will do one day
 class WebScrape:
 
     def __init__(self) -> None:
-        # self.emotion = Sentiment()
+        self.emotion = Sentiment()
         pass
 
     def get_links(self, query: str, num_days: int) -> list[(str, str)]:
@@ -93,6 +93,3 @@ if __name__ == "__main__":
     web = WebScrape()
     amd_links = web.get_links('amd+stocks', 5)
     print(amd_links)
-
-    # amd_html = web.get_html(links['amd'])
-    # nvidia_html = web.get_html(links['nvidia'])
