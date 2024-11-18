@@ -9,16 +9,52 @@ for testing i will do one day
 class WebScrape:
 
     def __init__(self) -> None:
-        self.emotion = Sentiment()
+        # self.emotion = Sentiment()
+        pass
 
-    def get_links(self, num_days: int) -> dict:
+    def get_links(self, query: str, num_days: int) -> list[(str, str)]:
         '''
         gets links for the specified number of days for AMD and NVIDIA
+        selenium -> chrome instance 
+            make google search 
+            get top 2 links per day for `num_days`
 
         returns dict with array of links
             each element is a tuple of two articles
         '''
-        pass
+        from selenium import webdriver
+        from selenium.webdriver.common.keys import Keys
+        from selenium.webdriver.common.by import By
+        from datetime import datetime, timedelta
+        from selenium.webdriver.chrome.options import Options
+
+        chrome_options = Options()
+        chrome_options.add_argument("--headless=new")
+        driver = webdriver.Chrome(options=chrome_options)
+
+        result = []
+        num_links_to_skip = 35
+        today = datetime.today()
+        date_format = "{0}/{1}/{2}"
+        url = "https://www.google.com/search?q={0}&num=10&sca_esv=21c38533450dea46&sxsrf=ADLYWIJ3l27vO1gJ2FnAVnnGDJEt0tUsvg:1731969105337&source=lnt&tbs=cdr:1,cd_min:{1},cd_max:{2}&tbm="
+        
+        for i in range(num_days):
+            day = today + timedelta(days=-i)
+            local_date = date_format.format(day.month, day.day, day.year)
+            day_url = url.format(query, local_date, local_date)
+
+            driver.get(day_url)
+            links = driver.find_elements(By.TAG_NAME, "a")
+
+            result.append(
+                (
+                    links[num_links_to_skip].get_dom_attribute('href'), 
+                    links[num_links_to_skip + 1].get_dom_attribute('href')
+                )
+            )
+
+        driver.close()
+        return result
 
     def get_html(self, links: list[(str, str)]) -> list[(str, str)]:
         '''
@@ -54,8 +90,8 @@ class WebScrape:
 
 if __name__ == "__main__":
     web = WebScrape()
-    links = web.get_links(1)
+    amd_links = web.get_links('amd+stocks', 5)
+    print(amd_links)
 
-    amd_html = web.get_html(links['amd'])
-    nvidia_html = web.get_html(links['nvidia'])
-
+    # amd_html = web.get_html(links['amd'])
+    # nvidia_html = web.get_html(links['nvidia'])
