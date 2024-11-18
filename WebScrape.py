@@ -22,6 +22,7 @@ class WebScrape:
         returns dict with array of links
             each element is a tuple of two articles
         '''
+        # https://www.selenium.dev/selenium/docs/api/py/webdriver_remote/selenium.webdriver.remote.webelement.html
         from selenium import webdriver
         from selenium.webdriver.common.keys import Keys
         from selenium.webdriver.common.by import By
