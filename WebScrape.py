@@ -9,8 +9,7 @@ for testing i will do one day
 class WebScrape:
 
     def __init__(self) -> None:
-        # self.emotion = Sentiment()
-        pass
+        self.emotion = Sentiment()
 
     def get_links(self, query: str, num_days: int) -> list[(str, str)]:
         '''
@@ -27,18 +26,17 @@ class WebScrape:
         from selenium.webdriver.common.by import By
         from datetime import datetime, timedelta
         from selenium.webdriver.chrome.options import Options
-
+        
         chrome_options = Options()
         chrome_options.add_argument("--headless=new")
         driver = webdriver.Chrome(options=chrome_options)
 
         result = []
-        num_links_to_skip = 35
         today = datetime.today()
         date_format = "{0}/{1}/{2}"
         url = "https://www.google.com/search?q={0}&num=10&sca_esv=21c38533450dea46&sxsrf=ADLYWIJ3l27vO1gJ2FnAVnnGDJEt0tUsvg:1731969105337&source=lnt&tbs=cdr:1,cd_min:{1},cd_max:{2}&tbm="
         
-        for i in range(num_days):
+        for i in range(0, num_days):
             day = today + timedelta(days=-i)
             local_date = date_format.format(day.month, day.day, day.year)
             day_url = url.format(query, local_date, local_date)
@@ -46,53 +44,97 @@ class WebScrape:
             driver.get(day_url)
             links = driver.find_elements(By.TAG_NAME, "a")
             n = len(links)
-            i = 0
-            res = []
+            j = 33
+            res = [] 
 
-            while len(res) < 3 and i < n:
-                href = links[i].get_dom_attribute('href')
-                if href and "https://" == href[:8] and "google.com" not in  href:
-                    res.append(links[i].get_dom_attribute('href'))
-                i += 1
-                
+            while len(res) < 2 and j < n:
+                # href = str(links[j].get_dom_attribute('href'))
+                link_text = str(links[j].text)
+
+                # if self.validate_link(href):
+                    # res.append(href)
+                if link_text:
+                    res.append(link_text) 
+                j += 1
+
+            # result.append(self.get_html(res))
             result.append(res)
+            print(f"Day {i} done")
 
         driver.close()
         return result
 
-    def get_html(self, links: list[(str, str)]) -> list[(str, str)]:
-        '''
-        converts list of tuples of urls to list of html body (no div tags)
-        '''
+    def get_html(self, links: list[str]) -> list[str]:
         from bs4 import BeautifulSoup
+        import requests
 
-        for i, link1, link2 in enumerate(links):
-            # get html of link
-            link1, link2 = links[i]
-            link1 = BeautifulSoup(link1)
-            link2 = BeautifulSoup(link2)
-            
-            # parse html for body (beauitfy)
-            link1 = link1.get_text()
-            link2 = link2.get_text()
-            
-            # replace value in place
-            links[i] = (link1, link2)
-        return links
+        html_bodies = []
+        for link in links:
+            if not link:
+                html_bodies.append("")
+                continue
+
+            try:
+                response = requests.get(link, timeout=10)
+                response.raise_for_status()
+
+                soup = BeautifulSoup(response.text, features="html.parser")
+                html_bodies.append(str(soup.get_text()))
+            except requests.exceptions.RequestException as e:
+                # print(f"Error fetching URL: {link}, {e}")
+                html_bodies.append("")
+        return html_bodies
     
+    def validate_link(self, href):
+        import requests
+
+        try:
+            _ = requests.get(href, timeout=5)
+        except Exception as e:
+            # print(f"Error parsing URL: {href}, {e}")
+            return False
+
+        conds = href is not None
+        conds *= href.startswith("https://")
+        conds *= "google.com" not in href
+        # print(href, conds)
+        return bool(conds)
+
     def get_sentiment(self, htmls: list[str]):
         '''
         averages the sentiments of both days into one and stores in list
         '''
         res = []
         for html in htmls:
-            sentiment = sum(self.emotion.get_sentiment(html)) // 2
+            sentiment = sum(self.emotion.get_sentiment(html)) / 2
             res.append(sentiment)
 
         return res
 
+    def save(self, arr, n):
+        from datetime import datetime, timedelta
+        
+        today = datetime.today()
+        date_format = "{0}/{1}/{2}"
+
+        with open("data.json", "w") as f:
+            f.write("{\n")
+            for i in range(0, n):
+                if i != 0:
+                    f.write(",\n")
+                day = today + timedelta(days=-i)
+                local_date = date_format.format(day.month, day.day, day.year)
+        
+                f.write(f"\t\"{local_date}\": {arr[i]}")
+            f.write("\n}")        
+        
 
 if __name__ == "__main__":
     web = WebScrape()
-    amd_links = web.get_links('amd+stocks', 2)
-    print(amd_links)
+    n = 365 * 2
+    print("Getting HTML Links")
+    amd_links = web.get_links('amd+stocks', n)
+    print("Getting Sentiment")
+    sentiment = web.get_sentiment(amd_links)
+    web.save(sentiment, n)
+
