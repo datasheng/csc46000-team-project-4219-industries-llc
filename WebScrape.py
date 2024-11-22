@@ -9,7 +9,7 @@ for testing i will do one day
 class WebScrape:
 
     def __init__(self) -> None:
-        self.emotion = Sentiment()
+        # self.emotion = Sentiment()
         pass
 
     def get_links(self, query: str, num_days: int) -> list[(str, str)]:
@@ -45,13 +45,17 @@ class WebScrape:
 
             driver.get(day_url)
             links = driver.find_elements(By.TAG_NAME, "a")
+            n = len(links)
+            i = 0
+            res = []
 
-            result.append(
-                (
-                    links[num_links_to_skip].get_dom_attribute('href'), 
-                    links[num_links_to_skip + 1].get_dom_attribute('href')
-                )
-            )
+            while len(res) < 3 and i < n:
+                href = links[i].get_dom_attribute('href')
+                if href and "https://" == href[:8] and "google.com" not in  href:
+                    res.append(links[i].get_dom_attribute('href'))
+                i += 1
+                
+            result.append(res)
 
         driver.close()
         return result
@@ -90,5 +94,5 @@ class WebScrape:
 
 if __name__ == "__main__":
     web = WebScrape()
-    amd_links = web.get_links('amd+stocks', 5)
+    amd_links = web.get_links('amd+stocks', 2)
     print(amd_links)
