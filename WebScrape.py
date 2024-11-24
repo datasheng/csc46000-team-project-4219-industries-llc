@@ -10,7 +10,7 @@ class WebScrape:
 
     def __init__(self) -> None:
         self.emotion = Sentiment()
-        self.n = 258
+        self.n = 1028
 
     def get_links(self, query: str) -> list[(str, str)]:
         '''
@@ -37,7 +37,7 @@ class WebScrape:
         date_format = "{0}/{1}/{2}"
         url = "https://www.google.com/search?q={0}&num=10&sca_esv=21c38533450dea46&sxsrf=ADLYWIJ3l27vO1gJ2FnAVnnGDJEt0tUsvg:1731969105337&source=lnt&tbs=cdr:1,cd_min:{1},cd_max:{2}&tbm="
 
-        for i in range(self.n, 365*2):
+        for i in range(self.n, 365*5):
             day = today + timedelta(days=-i)
             print(day)
             local_date = date_format.format(day.month, day.day, day.year)
@@ -57,11 +57,11 @@ class WebScrape:
                 n = len(links)
                 j = 33
                 res = []
-                print(n)
+                # print(n)
 
             while len(res) < 2 and j < n:
                 link_text = str(links[j].text)
-                print(link_text)
+                # print(link_text)
                 if link_text:
                     res.append(link_text) 
                 j += 1
