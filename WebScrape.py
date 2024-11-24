@@ -11,6 +11,8 @@ class WebScrape:
     def __init__(self) -> None:
         self.emotion = Sentiment()
         self.n = 1028
+        self.retries = 3
+        self.end = 365 * 4
 
     def get_links(self, query: str) -> list[(str, str)]:
         '''
@@ -37,37 +39,41 @@ class WebScrape:
         date_format = "{0}/{1}/{2}"
         url = "https://www.google.com/search?q={0}&num=10&sca_esv=21c38533450dea46&sxsrf=ADLYWIJ3l27vO1gJ2FnAVnnGDJEt0tUsvg:1731969105337&source=lnt&tbs=cdr:1,cd_min:{1},cd_max:{2}&tbm="
 
-        for i in range(self.n, 365*5):
+        for i in range(self.n, self.end):
             day = today + timedelta(days=-i)
-            print(day)
             local_date = date_format.format(day.month, day.day, day.year)
             day_url = url.format(query, local_date, local_date)
+            print(day)
 
             driver.get(day_url)
             links = driver.find_elements(By.TAG_NAME, "a")
             n = len(links)
-            j = 33
+            link_idx = 33
+            retries = 0
             res = []
-            print(n)
-
-            if n == 3:
+            
+            while n <= 3 and retries < self.retries:
                 driver = webdriver.Chrome(options=chrome_options)
                 driver.get(day_url)
                 links = driver.find_elements(By.TAG_NAME, "a")
                 n = len(links)
-                j = 33
-                res = []
-                # print(n)
+                
+                retries += 1
+            
+            if n <= 3:
+                print(f"Day {i} failed")
+                res = ["", ""]
+                break
 
-            while len(res) < 2 and j < n:
-                link_text = str(links[j].text)
+            while len(res) < 2 and link_idx < n:
+                link_text = str(links[link_idx].text)
                 # print(link_text)
                 if link_text:
                     res.append(link_text) 
-                j += 1
+                link_idx += 1
 
             result.append(res)
-            print(f"Day {i} done")
+            # print(f"Day {i} done")
 
         driver.close()
         return result
@@ -126,7 +132,7 @@ class WebScrape:
         with open("data.json", "a") as f:
             # f.write("{\n")
             j = 0
-            for i in range(self.n, self.n * 2):
+            for i in range(self.n, self.n + len(arr)):
                 if i != 0:
                     f.write(",\n")
                 day = today + timedelta(days=-i)
