@@ -61,8 +61,7 @@ class WebScrape:
                 retries += 1
             
             if n <= 3:
-                print(f"Day {i} failed")
-                res = ["", ""]
+                print(f"Unable to get links, breaking")
                 break
 
             while len(res) < 2 and link_idx < n:
@@ -140,14 +139,18 @@ class WebScrape:
         
                 f.write(f"\t\"{local_date}\": {arr[j]}")
                 j += 1
-            # f.write("\n}")        
-        
+            # f.write("\n}")
+    
+    def save_links(self, arr):
+        import pickle
+        pickle.dump(arr, open("links.pkl", "wb"))
 
 if __name__ == "__main__":
     web = WebScrape()
     print("Getting HTML Links")
     amd_links = web.get_links('amd+stocks')
-    print("Getting Sentiment")
-    sentiment = web.get_sentiment(amd_links)
-    web.save(sentiment)
+    web.save_links(amd_links)
+    # print("Getting Sentiment")
+    # sentiment = web.get_sentiment(amd_links)
+    # web.save(sentiment)
 
