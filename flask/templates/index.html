@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Price Forecast</title>
+</head>
+<body>
+	<form method="POST">
+        <label for="stock">Stock:</label>
+        <select name="stock" id="stock" required>
+            <option value="NVDA">NVDA</option>
+            <option value="AMD">AMD</option>
+        </select>
+        <label for="price">Price:</label>
+        <select name="price" id="price" required>
+            <option value="Open">Open</option>
+            <option value="High">High</option>
+            <option value="Low">Low</option>
+            <option value="Close">Close</option>
+        </select>
+        <button type="submit">Forecast</button>
+    </form>
+
+    {% if plot_url %}
+    <img src="data:image/png;base64,{{ plot_url }}" alt="forecast plot">
+    {% endif %}
+
+</body>
+</html>
