@@ -16,15 +16,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///forecast.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-with app.app_context():
-    db.create_all()
-
 class Forecast(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     stock = db.Column(db.String(10), nullable=False)
     price = db.Column(db.String(10), nullable=False)
     date = db.Column(db.String(10), nullable=False)
     future_data = db.Column(db.PickleType, nullable=False)
+
+with app.app_context():
+    db.create_all()
 
 def ticker_history(comp, dt):
     ticker = yf.Ticker(comp)
@@ -109,6 +109,7 @@ def index():
         plt.ylabel('Price')
         img = io.BytesIO()
         plt.savefig(img, format='png')
+        img.seek(0)
         plot_url = base64.b64encode(img.getvalue()).decode('utf8')
     
     return render_template('index.html', plot_url=plot_url)
