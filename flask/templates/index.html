@@ -1,28 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Stock Price Forecast</title>
+    <title>NVDA / AMD Stock Price Forecast</title>
+    <link rel='stylesheet' href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        function isLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('forecast').style.display = 'none';
+        }
+
+        window.onload = function() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('forecast').style.display = 'block';
+        };
+    </script>
 </head>
 <body>
-	<form method="POST">
-        <label for="stock">Stock:</label>
-        <select name="stock" id="stock" required>
-            <option value="NVDA">NVDA</option>
-            <option value="AMD">AMD</option>
-        </select>
-        <label for="price">Price:</label>
-        <select name="price" id="price" required>
-            <option value="Open">Open</option>
-            <option value="High">High</option>
-            <option value="Low">Low</option>
-            <option value="Close">Close</option>
-        </select>
-        <button type="submit">Forecast</button>
-    </form>
+    <div class='container'>
+        <h2>NVDA / AMD Stock Price Forecast</h2>
+        <form method='POST' id='forecast' onsubmit='isLoading()'>
+            <div class='menu'>
+                <label for='stock'>Stock:</label>
+                <select name='stock' id='stock' required>
+                    <option value='NVDA'>NVDA</option>
+                    <option value='AMD'>AMD</option>
+                </select>
+            </div>
+            <div class='menu'>
+                <label for='price'>Price:</label>
+                <select name='price' id='price' required>
+                    <option value='Open'>Open</option>
+                    <option value='High'>High</option>
+                    <option value='Low'>Low</option>
+                    <option value='Close'>Close</option>
+                </select>
+            </div>
+            <button type='submit'>Forecast</button>
+        </form>
 
-    {% if plot_url %}
-    <img src="data:image/png;base64,{{ plot_url }}" alt="forecast plot">
-    {% endif %}
+        <div id='loading'>
+            <p>Loading...</p>
+        </div>
 
+        {% if plot_url %}
+        <div>
+            <img src='data:image/png;base64,{{ plot_url }}' alt='forecast plot'>
+        </div>
+        {% endif %}
+    </div>
 </body>
 </html>
