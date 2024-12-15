@@ -38,7 +38,7 @@ def scale_fit_transform(train, scaler):
 
 def model_lstm(step, price, unit):
     lstm = Sequential()
-    lstm.add(LSTM(units=100, activation='tanh', input_shape=(step, price)))
+    lstm.add(LSTM(units=64, activation='tanh', input_shape=(step, price)))
     lstm.add(Dense(units=unit))
     lstm.compile(optimizer='adam', loss='mse')
     return lstm
